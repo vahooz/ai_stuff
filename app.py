@@ -10,25 +10,19 @@ def hello():
     query = data.get('query', '')
     return jsonify({"message": query})
 
-@app.route("/receive_file", methods=["POST"])
-def receive_file():
-    data = request.json
+@app.route("/upload", methods=["POST"])
+def upload_file():
+    content_type = request.headers.get('Content-Type')
+    if content_type != 'application/octet-stream':
+        return "Unsupported Media Type", 415
 
-    filename = data.get("filename")
-    content_base64 = data.get("content_base64")
+    filename = request.headers.get('Content-Disposition', 'attachment; filename=uploaded_file').split("filename=")[-1].strip('"')
+    file_content = request.get_data()
 
-    if not filename or not content_base64:
-        return jsonify({"error": "Missing filename or content"}), 400
+    with open(f"./uploads/{filename}", "wb") as f:
+        f.write(file_content)
 
-    os.makedirs("./downloads", exist_ok=True)
-    file_path = os.path.join("downloads", filename)
-
-    # Zapisz plik
-    with open(file_path, "wb") as f:
-        f.write(base64.b64decode(content_base64))
-
-    # Zwróć nazwę pliku
-    return jsonify({"received_file": filename}), 200
+    return f"Plik {filename} zapisany", 200
 
 
 @app.route('/')
