@@ -12,6 +12,9 @@ def hello():
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
+    print("HEADERS:", dict(request.headers))
+    print("RAW DATA:", request.get_data())
+    
     content_type = request.headers.get('Content-Type')
     if content_type != 'application/octet-stream':
         return "Unsupported Media Type", 415
