@@ -16,14 +16,22 @@ def upload_file():
     if content_type != 'application/octet-stream':
         return "Unsupported Media Type", 415
 
-    filename = request.headers.get('Content-Disposition', 'attachment; filename=uploaded_file').split("filename=")[-1].strip('"')
+    # Pobierz nazwę pliku z nagłówka
+    content_disp = request.headers.get('Content-Disposition', 'attachment; filename=uploaded_file')
+    filename = content_disp.split("filename=")[-1].strip('"')
+
+    # Przeczytaj zawartość
     file_content = request.get_data()
 
-    with open(f"./uploads/{filename}", "wb") as f:
-        f.write(file_content)
+    new_filename = f"renamed_{filename}"
 
-    return f"Plik {filename} zapisany", 200
-
+    # Utwórz obiekt in-memory i zwróć go jako odpowiedź
+    return send_file(
+        io.BytesIO(file_content),
+        mimetype='application/octet-stream',
+        as_attachment=True,
+        download_name=new_filename  # Flask 2.x+
+    )
 
 @app.route('/')
 def welcome():
