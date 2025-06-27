@@ -42,7 +42,7 @@ def upload_file():
 
 @app.route("/encoded_upload", methods=["POST"])
 def upload_file_base64():
-    print("DATA:", dict(request.data))    
+    print("DATA:", request.data)    
     data = json.loads(request.data)
     content = base64.b64decode(data["content"])
     return Response(content, mimetype="text/plain")
